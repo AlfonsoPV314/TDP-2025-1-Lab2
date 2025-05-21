@@ -11,25 +11,25 @@ using namespace std;
 using namespace std::chrono;
 
 class UserInput {
-    private:
-        // Atributos
-        string nombreArchivo; // Nombre del archivo a leer
-        string currentSection; // Seccion actual
-        Graph* g;
-        bool exit;
-        int u, v;
-        int waiting;
-    public:  
-        // Entradas: nada
-        // Salidas: UserInput nuevo (UserInput)
-        // Descripcion: Constructor de un UserInput.
-        UserInput();
+private:
+    // Atributos
+    string nombreArchivo; // Nombre del archivo a leer
+    string currentSection; // Seccion actual
+    Graph* g;
+    bool exit;
+    int u, v;
+    int waiting;
+public:  
+    // Entradas: nada
+    // Salidas: UserInput nuevo (UserInput)
+    // Descripcion: Constructor de un UserInput.
+    UserInput();
 
-        // Entradas: nada
-        // Salidas: void
-        // Descripcion: blabla.
-        void menu();
-        void readFile();
-        void processWord(string word, int i, int j);
-        void elegirMetodo();
+    // Entradas: nada
+    // Salidas: void
+    // Descripcion: blabla.
+    void menu();
+    void readFile();
+    void processWord(string word, int i, int j);
+    void elegirMetodo();
 };

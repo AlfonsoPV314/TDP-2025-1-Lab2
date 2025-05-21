@@ -9,49 +9,54 @@
 using namespace std;
 
 class Graph {
-    private:
-        int V; // Numero de vertices
-        int E; // Numero de edges
-        double INF; // Infinito
-        vector<unordered_map<int, double>> M; // Lista de adyacencia
-        vector<bool> T;
-    public:
-        // Constructor
-        Graph(int n);
+private:
+    int V; // Numero de vertices
+    int E; // Numero de edges
+    double INF; // Infinito
+    vector<unordered_map<int, double>> M; // Lista de adyacencia
+    vector<bool> T;
 
-        // Obtener el numero de vertices
-        int getV() const;
-        
-        // Obtener el numero de aristas
-        int getE() const;
+public:
+    // Constructor
+    Graph(int n);
 
-        vector<bool> getT() const;
+    Graph(const vector<int> Vt, const vector<pair<pair<int, int>, double>>& Et, vector<bool> T);
 
-        vector<unordered_map<int, double>> getM() const;
+    // Obtener el numero de vertices
+    int getV() const;
+    
+    // Obtener el numero de aristas
+    int getE() const;
 
-        double getINF() const;
-        
-        // Agregar arista
-        void addEdge(int u, int v, double w);
+    vector<bool> getT() const;
 
-        double getEdge(int u, int v);
+    vector<unordered_map<int, double>> getM() const;
 
-        void setTerm(int t);
+    double getINF() const;
+    
+    // Agregar arista
+    void addEdge(int u, int v, double w);
 
-        Graph* cloneGraph() const;
+    double getEdge(int u, int v) const;
 
-        vector<pair<int, int>> dijkstra(int u, int v) const;
+    void setTerm(int t);
 
-        void printDijkstra(const vector<pair<int, int>>& path);
+    Graph* cloneGraph() const;
 
-        vector<pair<int, int>> solveTM() const;
+    pair<vector<pair<pair<int, int>, double>>, double> dijkstra(int u, int v) const;
 
-        void printTM(const vector<pair<int, int>>& Te) const;
+    void printDijkstra(const vector<pair<pair<int, int>, double>>& path);
 
-        vector<pair<int, int>> solveKMB() const;
+    pair<vector<pair<pair<int, int>, double>>, double> MSTPrim(int origin) const;
 
-        // Imprimir grafo
-        void printGraph() const;
+    void printMST(const pair<vector<pair<pair<int, int>, double>>, double>& mstEdges) const;
 
-        bool operator==(const Graph& other) const;
+    bool isCyclic() const;
+
+    bool isCyclicUtil(int v, vector<bool>& visited, int parent) const;
+
+    // Imprimir grafo
+    void printGraph() const;
+
+    bool operator==(const Graph& other) const;
 };

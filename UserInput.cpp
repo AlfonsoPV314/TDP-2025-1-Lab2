@@ -1,5 +1,7 @@
 #include "UserInput.h"
 
+// CLASS CURRENTLY BROKEN I HAVE TO FIX IT ACCORDING TO THE STRATEGY DESIGN PATTERN
+
 
 UserInput::UserInput() : exit(false), nombreArchivo(""), currentSection(""), g(nullptr), waiting(0) {}
 
@@ -188,10 +190,11 @@ void UserInput::elegirMetodo() {
             case 1:
                 cout << "Ejecutando metodo de Takahashi-Matsuyama..." << endl;
                 start = high_resolution_clock::now();
-                S = g->solveTM();
+                Takahashi* TM = new Takahashi(g);
+                S = TM->solve();
                 stop = high_resolution_clock::now();
                 duration = duration_cast<microseconds>(stop - start);
-                g->printTM(S);
+                S->print();
                 cout << "Tiempo de ejecucion: " << duration.count() << " microsegundos." << endl;
                 end = true;
                 break;

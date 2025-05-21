@@ -2,6 +2,15 @@
 
 Graph::Graph(int n) : V(n), INF(numeric_limits<double>::infinity()), M(n), E(0), T(n, false) {}
 
+Graph::Graph(const vector<int> Vt, const vector<pair<pair<int, int>, double>>& Et, vector<bool> T) : V(Vt.size()), INF(numeric_limits<double>::infinity()), M(V), E(Et.size()), T(V, false) {
+    for (int i = 0; i < Vt.size(); i++) {
+        this->T[i] = T[i];
+    }
+    for (const auto& edge : Et) {
+        addEdge(edge.first.first, edge.first.second, edge.second); // Peso por defecto de 1.0
+    }
+}
+
 int Graph::getV() const {
     return V;
 }
@@ -42,7 +51,7 @@ void Graph::addEdge(int u, int v, double w) {
     E++;
 }
 
-double Graph::getEdge(int u, int v) {
+double Graph::getEdge(int u, int v) const {
 
     // Verificar si los vertices son validos
     if (u < 0 || u >= V || v < 0 || v >= V) {
@@ -75,11 +84,12 @@ Graph* Graph::cloneGraph() const {
     return clone;
 }
 
-vector<pair<int, int>> Graph::dijkstra(int u, int v) const {
-    vector<pair<int, int>> path;
+pair<vector<pair<pair<int, int>, double>>, double> Graph::dijkstra(int u, int v) const {
+    vector<pair<pair<int, int>, double>> path;
     vector<double> dist(V, INF);
     vector<int> prev(V, -1);
     priority_queue<pair<double, int>, vector<pair<double, int>>, greater<pair<double, int>>> pq;
+    double totalWeight = 0;
 
     dist[u] = 0;
     pq.push({0, u});
@@ -101,81 +111,93 @@ vector<pair<int, int>> Graph::dijkstra(int u, int v) const {
 
     for (int at = v; at != -1; at = prev[at]) {
         if (prev[at] != -1) {
-            path.push_back({at, prev[at]});
+            path.push_back({{at, prev[at]}, getEdge(at, prev[at])});
+            totalWeight += getEdge(at, prev[at]);
         }
     }
     reverse(path.begin(), path.end());
-    return path;
+    return {path, totalWeight};
 }
 
 // Función para imprimir el camino obtenido por Dijkstra
-void Graph::printDijkstra(const vector<pair<int, int>>& path) {
-    cout << "[Dijkstra Path] Camino más corto:" << endl;
-    for (const auto& [node, prev] : path) {
-        if (prev != -1) {
-            cout << "Desde " << prev << " hacia " << node << endl;
+void Graph::printDijkstra(const vector<pair<pair<int, int>, double>>& path) {
+    cout << "[Graph::printDijkstra] Camino más corto:" << endl;
+    for (const auto& [edge, weight] : path) {
+        int node = edge.first;
+        int prev = edge.second;
+        if(prev != -1 && weight != INF && weight != -1) {
+            cout << "(" << node << ", " << prev << ", " << weight << ")" << endl;
         }
     }
     cout << endl;
 }
 
-vector<pair<int, int>> Graph::solveTM() const {
-    vector<pair<int, int>> Te;
-    unordered_set<int> Tv;
-    int r = -1;
-    vector<int> R;
+pair<vector<pair<pair<int, int>, double>>, double> Graph::MSTPrim(int origin) const {
+    vector<pair<pair<int, int>, double>> mstEdges;
+    vector<double> dist(V, INF);
+    vector<int> prev(V, -1);
+    priority_queue<pair<double, int>, vector<pair<double, int>>, greater<pair<double, int>>> pq;
+    double totalWeight = 0;
 
-    // Crear lista de terminales
-    for (int i = 0; i < V; i++) {
-        if (T[i]) {
-            R.push_back(i);
+    dist[origin] = 0;
+    pq.push({0, origin});
+
+    while (!pq.empty()) {
+        auto [d, node] = pq.top();
+        pq.pop();
+
+        if (d > dist[node]) continue;
+
+        for (const auto& [neighbor, weight] : M[node]) {
+            if (weight < dist[neighbor]) {
+                dist[neighbor] = weight;
+                prev[neighbor] = node;
+                pq.push({dist[neighbor], neighbor});
+            }
         }
     }
 
-    if (R.empty()) {
-        cout << "[Graph::solveTM] Error: No hay vertices terminales en el grafo" << endl;
-        return Te;
+    for (int i = 0; i < V; ++i) {
+        if (prev[i] != -1) {
+            mstEdges.push_back({{i, prev[i]}, getEdge(i, prev[i])});
+            totalWeight += getEdge(i, prev[i]);
+        }
     }
 
-    // Inicializar con el primer terminal
-    r = R[0];
-    R.erase(R.begin());
-    Tv.insert(r);
-
-    while (!R.empty()) {
-        double min = INF;
-        int v = R[0]; // Tomar un terminal de R
-        vector<pair<int, int>> shortestPath = dijkstra(*Tv.begin(), v);
-
-        // Si no se encuentra camino
-        if (shortestPath.empty()) {
-            cout << "[Graph::solveTM] Error: No se encontró camino entre conjuntos" << endl;
-            return {};
-        }
-
-        // Agregar las aristas al árbol de Steiner
-        for (const auto& edge : shortestPath) {
-            Te.push_back(edge);
-        }
-
-        // Actualizar Tv y eliminar el terminal de R
-        for (const auto& [node, _] : shortestPath) {
-            Tv.insert(node);
-        }
-        R.erase(R.begin());
-    }
-
-    return Te;
+    return {mstEdges, totalWeight};
 }
 
-void Graph::printTM(const vector<pair<int, int>>& Te) const {
-    cout << "[Graph::printTM] Imprimiendo arbol de Steiner..." << endl;
-    for (const auto& [u, v] : Te) {
-        cout << "(" << u << ", " << v << ")" << endl;
+void Graph::printMST(const pair<vector<pair<pair<int, int>, double>>, double>& mstEdges) const {
+    cout << "[Graph::printMST] Arbol de expansión mínima:" << endl;
+    for (const auto& [u, v] : mstEdges.first) {
+        cout << "(" << u.first << ", " << u.second << ", " << v << ")" << endl;
     }
-    cout << endl;
+    cout << "Peso total del MST: " << mstEdges.second << endl;
 }
 
+bool Graph::isCyclic() const {
+    vector<bool> visited(V, false);
+    for (int i = 0; i < V; ++i) {
+        if (!visited[i] && isCyclicUtil(i, visited, -1)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Graph::isCyclicUtil(int v, vector<bool>& visited, int parent) const {
+    visited[v] = true;
+    for (const auto& [neighbor, _] : M[v]) {
+        if (!visited[neighbor]) {
+            if (isCyclicUtil(neighbor, visited, v)) {
+                return true;
+            }
+        } else if (neighbor != parent) {
+            return true;
+        }
+    }
+    return false;
+}
 
 void Graph::printGraph() const {
     cout << "[Graph::printGraph] Imprimiendo grafo..." << endl;
