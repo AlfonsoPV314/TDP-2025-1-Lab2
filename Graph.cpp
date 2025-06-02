@@ -1,14 +1,18 @@
 #include "Graph.h"
 
-Graph::Graph(int n) : V(n), INF(numeric_limits<double>::infinity()), M(n), E(0), T(n, false) {}
+Graph::Graph(int n) : V(n), INF(numeric_limits<double>::infinity()), M(n), E(0), Tn(0), T(n, false) {}
 
-Graph::Graph(const vector<int> Vt, const vector<pair<pair<int, int>, double>>& Et, vector<bool> T) : V(Vt.size()), INF(numeric_limits<double>::infinity()), M(V), E(Et.size()), T(V, false) {
-    for (int i = 0; i < Vt.size(); i++) {
+Graph::Graph(const vector<int> Vt, const vector<pair<pair<int, int>, double>>& Et, vector<bool> T) : V(T.size()), INF(numeric_limits<double>::infinity()), M(V), E(0), Tn(0), T(V, false) {
+    for (int i = 0; i < V; i++) {
         this->T[i] = T[i];
+        if(T[i]) {
+            Tn++;  // Contar el numero de nodos terminales
+        }
     }
     for (const auto& edge : Et) {
-        addEdge(edge.first.first, edge.first.second, edge.second); // Peso por defecto de 1.0
+        addEdge(edge.first.first, edge.first.second, edge.second);
     }
+    cout << "[Graph::Graph] Creando grafo con " << Vt.size() << " nodos y " << Et.size() << " aristas." << endl;
 }
 
 int Graph::getV() const {
@@ -17,6 +21,10 @@ int Graph::getV() const {
 
 int Graph::getE() const {
     return E;
+}
+
+int Graph::getTn() const {
+    return Tn;
 }
 
 vector<bool> Graph::getT() const {
@@ -67,12 +75,30 @@ double Graph::getEdge(int u, int v) const {
     return (it != M[u].end()) ? it->second : INF;   // Si no existe la arista, devolver INF. Si existe, devolver el peso
 }
 
+void Graph::removeEdge(int u, int v) {
+
+    // Verificar si los vertices son validos
+    if (u < 0 || u >= V || v < 0 || v >= V) {
+        if(u < 0 || u >= V) {
+            cout << "[Graph::removeEdge] Error: Primer vertice " << u << " fuera de rango (V es: " << getV() << ")" << endl;
+        }
+        else {
+            cout << "[Graph::removeEdge] Error: Segundo vertice " << v << " fuera de rango (V es: " << getV() << ")" << endl;
+        }
+        return;
+    }
+    M[u].erase(v);
+    M[v].erase(u);
+    E--;
+}
+
 void Graph::setTerm(int t) {
     if (t < 0 || t >= V) {
         cout << "[Graph::addTerm] Error: Vertice " << t << " fuera de rango (V es: " << getV() << ")" << endl;
         return;
     }
     T[t] = true;
+    Tn++;
 }
 
 Graph* Graph::cloneGraph() const {
@@ -110,11 +136,14 @@ pair<vector<pair<pair<int, int>, double>>, double> Graph::dijkstra(int u, int v)
     }
 
     for (int at = v; at != -1; at = prev[at]) {
+        cout << "[Graph::dijkstra] Visitando nodo: " << at << " con distancia: " << dist[at] << " y previo: " << prev[at] << endl;
         if (prev[at] != -1) {
             path.push_back({{at, prev[at]}, getEdge(at, prev[at])});
             totalWeight += getEdge(at, prev[at]);
+            cout << "[Graph::dijkstra] Agregando arista (" << at << ", " << prev[at] << ") con peso " << getEdge(at, prev[at]) << endl;
         }
     }
+    cout << "[Graph::dijkstra] Inputs: u es " << u << " y v es " << v << endl;
     reverse(path.begin(), path.end());
     return {path, totalWeight};
 }
@@ -126,16 +155,22 @@ void Graph::printDijkstra(const vector<pair<pair<int, int>, double>>& path) {
         int node = edge.first;
         int prev = edge.second;
         if(prev != -1 && weight != INF && weight != -1) {
-            cout << "(" << node << ", " << prev << ", " << weight << ")" << endl;
+            cout << "(" << node + 1 << ", " << prev + 1 << ", " << weight << ")" << endl;
         }
     }
     cout << endl;
 }
 
 pair<vector<pair<pair<int, int>, double>>, double> Graph::MSTPrim(int origin) const {
+    if (origin < 0 || origin >= V) {
+        cout << "[Graph::MSTPrim] Error: El nodo de origen " << origin << " está fuera de rango (V es: " << getV() << ")" << endl;
+        return {{}, -1};
+    }
+
     vector<pair<pair<int, int>, double>> mstEdges;
     vector<double> dist(V, INF);
     vector<int> prev(V, -1);
+    vector<bool> visited(V, false);
     priority_queue<pair<double, int>, vector<pair<double, int>>, greater<pair<double, int>>> pq;
     double totalWeight = 0;
 
@@ -146,10 +181,12 @@ pair<vector<pair<pair<int, int>, double>>, double> Graph::MSTPrim(int origin) co
         auto [d, node] = pq.top();
         pq.pop();
 
-        if (d > dist[node]) continue;
+        if (visited[node]) continue; // Salta nodos ya visitados
+
+        visited[node] = true;
 
         for (const auto& [neighbor, weight] : M[node]) {
-            if (weight < dist[neighbor]) {
+            if (!visited[neighbor] && weight < dist[neighbor]) {
                 dist[neighbor] = weight;
                 prev[neighbor] = node;
                 pq.push({dist[neighbor], neighbor});
@@ -164,57 +201,120 @@ pair<vector<pair<pair<int, int>, double>>, double> Graph::MSTPrim(int origin) co
         }
     }
 
+    // Verifica si hay nodos desconectados
+    for (int i = 0; i < V; ++i) {
+        if (!visited[i]) {
+            cout << "[Graph::MSTPrim] Advertencia: El nodo " << i << " no es alcanzable desde el origen." << endl;
+        }
+    }
+
     return {mstEdges, totalWeight};
 }
 
+
 void Graph::printMST(const pair<vector<pair<pair<int, int>, double>>, double>& mstEdges) const {
     cout << "[Graph::printMST] Arbol de expansión mínima:" << endl;
-    for (const auto& [u, v] : mstEdges.first) {
-        cout << "(" << u.first << ", " << u.second << ", " << v << ")" << endl;
+    for (const auto& [uv, w] : mstEdges.first) {
+        cout << "(" << uv.first + 1 << ", " << uv.second + 1 << ", " << w << ")" << endl;
     }
-    cout << "Peso total del MST: " << mstEdges.second << endl;
+    cout << "Peso total del MST: " << mstEdges.second << endl << endl;
 }
 
-bool Graph::isCyclic() const {
+// bool Graph::isCyclic() const {
+//     vector<bool> visited(V, false);
+//     for (int i = 0; i < V; ++i) {
+//         if (!visited[i] && isCyclicUtil(i, visited, -1)) {
+//             return true;
+//         }
+//     }
+//     return false;
+// }
+
+// bool Graph::isCyclicUtil(int v, vector<bool>& visited, int parent) const {
+//     visited[v] = true;
+//     for (const auto& [neighbor, _] : M[v]) {
+//         if (!visited[neighbor]) {
+//             if (isCyclicUtil(neighbor, visited, v)) {
+//                 return true;
+//             }
+//         } else if (neighbor != parent) {
+//             return true;
+//         }
+//     }
+//     return false;
+// }
+
+
+pair<bool, vector<pair<int, int>>> Graph::getCyclic() const {
     vector<bool> visited(V, false);
+    vector<pair<int, int>> cyclicEdges; // Almacena aristas cíclicas
+    set<pair<int, int>> cyclicSet;
+
+    // Función auxiliar DFS para detectar ciclos
+    function<bool(int, int)> detectCycle = [&](int node, int parent) -> bool {
+        visited[node] = true;
+        bool isCyclic = false;
+
+        for (const auto& [neighbor, _] : M[node]) {
+
+            // si el vecino no ha sido visitado
+            if (!visited[neighbor]) {
+                if (detectCycle(neighbor, node)) {
+                    cyclicSet.insert({min(node, neighbor), max(node, neighbor)}); // Insertar arista (pertenece a un ciclo)
+                    isCyclic = true;
+                }
+            } 
+            
+              // si el vecino ya ha sido visitado y no es el padre del nodo actual (se llegó por otro camino anteriormente)
+            else if (neighbor != parent) {
+                cyclicSet.insert({min(node, neighbor), max(node, neighbor)}); // Insertar arista (pertenece a un ciclo)
+                isCyclic = true;
+            }
+        }
+        return isCyclic;
+    };
+
+    // Ejecutar DFS en cada componente conectada
     for (int i = 0; i < V; ++i) {
-        if (!visited[i] && isCyclicUtil(i, visited, -1)) {
-            return true;
+        if (!visited[i]) {
+            detectCycle(i, -1);
         }
     }
-    return false;
+
+    // Copiar aristas del conjunto al vector
+    cyclicEdges.assign(cyclicSet.begin(), cyclicSet.end());
+
+    return {!cyclicEdges.empty(), cyclicEdges};
 }
 
-bool Graph::isCyclicUtil(int v, vector<bool>& visited, int parent) const {
-    visited[v] = true;
-    for (const auto& [neighbor, _] : M[v]) {
-        if (!visited[neighbor]) {
-            if (isCyclicUtil(neighbor, visited, v)) {
-                return true;
+pair<bool, vector<pair<int, int>>> Graph::getNonTermLeaves() const {
+    vector<pair<int, int>> nonTermLeaves;
+    for (int i = 0; i < V; ++i) {
+        if (!T[i] && M[i].size() == 1) { // Si el nodo no es terminal y tiene un solo vecino
+            for (const auto& [neighbor, _] : M[i]) {
+                nonTermLeaves.push_back({i, neighbor});
             }
-        } else if (neighbor != parent) {
-            return true;
         }
     }
-    return false;
+    return {!nonTermLeaves.empty(), nonTermLeaves};
 }
 
 void Graph::printGraph() const {
-    cout << "[Graph::printGraph] Imprimiendo grafo..." << endl;
+    cout << "[Graph::printGraph] Imprimiendo grafo (indices desde 1)..." << endl;
     cout << "Numero de vertices: " << V << endl;
     cout << "Numero de aristas: " << E << endl;
-    cout << "Vertices terminales: ";
+    cout << "Con " << Tn << " vertices terminales: ";
     for (int i = 0; i < V; i++) {
         if (T[i]) {
-            cout << i << " ";
+            cout << i + 1 << " ";
         }
     }
     cout << endl;
     cout << "Lista de adyacencia: " << endl;
     for (int u = 0; u < V; u++) {
-        cout << u << ": ";
+        cout << u + 1 << ": ";
         for (const auto& [v, w] : M[u]) {
-            cout << "(" << v << ", " << w << ") ";
+            cout << "(" << v + 1 << ", " << w << ") ";
         }
         cout << endl;
     }

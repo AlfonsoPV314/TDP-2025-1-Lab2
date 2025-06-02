@@ -1,6 +1,9 @@
-#include "Strategy.h"
+#ifndef TAKAHASHI_H
+#define TAKAHASHI_H
 
-class Takahashi: public Strategy {
+#include "STP.h"
+
+class Takahashi: public STP {
 public:
     Takahashi(Graph* g);
 
@@ -8,3 +11,5 @@ public:
 
     void print(const pair<vector<pair<int, int>>, double>& AproxST) const override;
 };
+
+#endif

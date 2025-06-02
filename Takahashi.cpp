@@ -1,6 +1,6 @@
 #include "Takahashi.h"
 
-Takahashi::Takahashi(Graph* g) : Strategy(g) {}
+Takahashi::Takahashi(Graph* g) : STP(g) {}
 
 pair<vector<pair<int, int>>, double> Takahashi::solve() const {
     vector<pair<int, int>> Te;
@@ -32,8 +32,11 @@ pair<vector<pair<int, int>>, double> Takahashi::solve() const {
         vector<pair<pair<int, int>, double>> shortestPath;    // camino mas corto (Tv)
         int v = R[0]; // Tomar un terminal de R
 
-        for(int i = 0; i < g->getV(); i++){
-            currentPath = g->dijkstra(*Tv.begin(), v);
+        for(int tv : Tv){
+            cout << "[Takahashi::solve] Buscando camino entre " << tv << " y " << v << endl;
+            currentPath = g->dijkstra(tv, v);
+            g->printDijkstra(currentPath.first);
+            //cin.get(); // Esperar a que el usuario presione Enter para continuar
             
             if (!currentPath.first.empty()) {
                 if(currentPath.second < minWeight){
@@ -75,10 +78,10 @@ void Takahashi::print(const pair<vector<pair<int, int>>, double>& AproxST) const
         cout << "[Takahashi::print] No hay arbol de Steiner para imprimir." << endl;
         return;
     }
-    cout << endl << "[Takahashi::print] Imprimiendo arbol de Steiner..." << endl;
+    cout << endl << "[Takahashi::print] Imprimiendo arbol de Steiner (nodos desde 1)..." << endl;
     vector<pair<int, int>> Te = AproxST.first;
     for (const auto& [u, v] : Te) {
-        cout << "(" << u << ", " << v << ")" << endl;
+        cout << "(" << u + 1 << ", " << v + 1 << ")" << endl;
     }
     cout << "Peso total de la aproximacion (metodo Takahashi-Matsuyama) al arbol de Steiner: " << AproxST.second << endl;
     cout << endl;

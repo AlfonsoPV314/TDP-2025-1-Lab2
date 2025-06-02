@@ -1,3 +1,6 @@
+#ifndef USERINPUT_H
+#define USERINPUT_H
+
 #include <iostream>
 #include <string>
 // fstream es para entrada y salida desde archivos
@@ -6,7 +9,8 @@
 #include <sstream>
 #include <chrono>
 #include <algorithm>
-#include "Graph.h"
+#include "Takahashi.h"
+#include "Kou.h"
 using namespace std;
 using namespace std::chrono;
 
@@ -33,3 +37,5 @@ public:
     void processWord(string word, int i, int j);
     void elegirMetodo();
 };
+
+#endif

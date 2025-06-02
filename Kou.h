@@ -1,6 +1,9 @@
-#include "Strategy.h"
+#ifndef KOU_H
+#define KOU_H
 
-class Kou: public Strategy {
+#include "STP.h"
+
+class Kou: public STP {
 public:
     Kou(Graph* g);
 
@@ -8,3 +11,5 @@ public:
 
     void print(const pair<vector<pair<int, int>>, double>& AproxST) const override;
 };
+
+#endif

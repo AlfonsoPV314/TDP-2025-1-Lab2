@@ -13,9 +13,18 @@ void UserInput::menu(){
         cout << "3. Encontrar aproximacion de arbol minimo de Stainer" << endl;
         cout << "4. Salir" << endl;
         cout << "===============================" << endl;
-        cout << "Seleccione una opcion: ";
+        cout << "Seleccione una opcion (numero entre 1 y 4): ";
         int option;
         cin >> option;
+
+        // Verificar si la entrada es válida
+        if (cin.fail() || option < 1 || option > 4) {
+            cin.clear();  // Limpia el flag de error
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');  // Descarta el resto de la entrada
+            cout << "Entrada invalida. Por favor, ingrese un numero entre 1 y 4." << endl;
+            continue;
+        }
+
         switch(option){
             case 1:
                 cout << "Ingrese el nombre del archivo (ingrese 0 para regresar al menu): ";
@@ -46,7 +55,8 @@ void UserInput::menu(){
                 break;
 
             default:
-                cout << "Opcion invalida." << endl;
+                cout << "Error fatal. Abortando..." << endl;
+                return;
         }
     }
 }
@@ -95,11 +105,11 @@ void UserInput::readFile() {
 }
 
 void UserInput::processWord(string word, int i, int j) {
-    //cout << "[UserInput::processWord] Procesando palabra: " << word << " con i: " << i << " y j: " << j << endl;
+    cout << "[UserInput::processWord] Procesando palabra: " << word << " con i: " << i << " y j: " << j << endl;
     if(!(currentSection == "graph" || currentSection == "terminals" || currentSection == "waiting" || i >= 0 || j >= 0)) return;
     if (currentSection == "waiting") {
         currentSection = word;
-        //cout << "[UserInput::processWord] Seccion ahora es: [" << currentSection << "]" << endl;
+        cout << "[UserInput::processWord] Seccion ahora es: [" << currentSection << "]" << endl;
         waiting = 0;
     } 
     else if (currentSection == "graph") {
@@ -113,12 +123,12 @@ void UserInput::processWord(string word, int i, int j) {
                 }
                 else if (waiting == 1) {
                     int nodes = stoi(word);
-                    //cout << "[UserInput::processWord] Creando grafo con " << nodes << " nodos." << endl;
+                    cout << "[UserInput::processWord] Creando grafo con " << nodes << " nodos." << endl;
                     g = new Graph(nodes);
                     waiting = 0;
                 }
                 else {
-                    //cout << "[UserInput::processWord] Palabra no reconocida: " << word << endl;
+                    cout << "[UserInput::processWord] Palabra no reconocida: " << word << endl;
                 }
                 break;
 
@@ -145,12 +155,12 @@ void UserInput::processWord(string word, int i, int j) {
 
                 case 3:
                     g->addEdge(u, v, stod(word));
-                    //cout << "[UserInput::processWord] Arista [" << u << ", " << v << "] con peso " << word << " agregada." << endl;
+                    cout << "[UserInput::processWord] Arista [" << u << ", " << v << "] con peso " << word << " agregada." << endl;
                     j = 0;
                     break;
                         
                 default:
-                    //cout << "[UserInput::processWord] Input no reconocido: j = " << j << endl;
+                    cout << "[UserInput::processWord] Input no reconocido: j = " << j << endl;
                     break;
                 }
         
@@ -160,11 +170,13 @@ void UserInput::processWord(string word, int i, int j) {
         if (word == "t" || word == "end") {
             return;
         }
-        g->setTerm(stoi(word) - 1);
-        //cout << "[UserInput::processWord] Terminal " << word << " agregado." << endl;
+        if(i > 1){
+            g->setTerm(stoi(word) - 1);
+            cout << "[UserInput::processWord] Terminal " << word << " agregado." << endl;
+        }
     }
     else {
-        //cout << "[UserInput::processWord] Palabra no reconocida o no relevante: " << word << endl;
+        cout << "[UserInput::processWord] Palabra no reconocida o no relevante: " << word << endl;
     }
 }
 
@@ -183,18 +195,29 @@ void UserInput::elegirMetodo() {
         int option;
         time_point<chrono::high_resolution_clock> start, stop;
         chrono::microseconds duration;
-        cout << "Ingrese su opcion: ";
+        cout << "Ingrese su opcion (numero entre 1 y 4): ";
         cin >> option;
-        vector<pair<int, int>> S;
+
+        // Verificar si la entrada es válida
+        if (cin.fail() || option < 1 || option > 4) {
+            cin.clear();  // Limpia el flag de error
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');  // Descarta el resto de la entrada
+            cout << "Entrada invalida. Por favor, ingrese un numero entre 1 y 4." << endl;
+            continue;
+        }
+
+        pair<vector<pair<int, int>>, double> S;
+        Takahashi* TM = new Takahashi(g);
+        Kou* KMB = new Kou(g);
         switch(option){
             case 1:
                 cout << "Ejecutando metodo de Takahashi-Matsuyama..." << endl;
                 start = high_resolution_clock::now();
-                Takahashi* TM = new Takahashi(g);
                 S = TM->solve();
                 stop = high_resolution_clock::now();
                 duration = duration_cast<microseconds>(stop - start);
-                S->print();
+                TM->print(S);
+                if(!TM->verifyValidity(S.first, S.second)) "Oops! El arbol de Steiner encontrado tiene algun error... :^(";
                 cout << "Tiempo de ejecucion: " << duration.count() << " microsegundos." << endl;
                 end = true;
                 break;
@@ -202,11 +225,12 @@ void UserInput::elegirMetodo() {
             case 2:
                 cout << "Ejecutando metodo de Kou-Markowsky-Berman..." << endl;
                 start = high_resolution_clock::now();
-                //vector<pair<int, int>> S = g->solveKMB();
+                S = KMB->solve();
                 stop = high_resolution_clock::now();
-                duration = duration_cast<microseconds>(stop - start);
-                //g->printKMB(S);
+                duration = duration_cast<minutes>(stop - start);
                 cout << "Tiempo de ejecucion: " << duration.count() << " microsegundos." << endl;
+                KMB->print(S);
+                if(!KMB->verifyValidity(S.first, S.second)) "Oops! El arbol de Steiner encontrado tiene algun error... :^(";
                 end = true;
                 break;
 
@@ -215,7 +239,7 @@ void UserInput::elegirMetodo() {
                 start = high_resolution_clock::now();
                 //vector<pair<int, int>> S = g->solve???();
                 stop = high_resolution_clock::now();
-                duration = duration_cast<microseconds>(stop - start);
+                duration = duration_cast<minutes>(stop - start);
                 //g->print???(S);
                 cout << "Tiempo de ejecucion: " << duration.count() << " microsegundos." << endl;
                 end = true;
@@ -225,8 +249,8 @@ void UserInput::elegirMetodo() {
                 return;
                 
             default:
-                cout << "Opcion no valida." << endl;
-                break;
+                cout << "Error fatal. Abortando..." << endl;
+                return;
         }
     }
     cout << "Regresando al menu..." << endl;
