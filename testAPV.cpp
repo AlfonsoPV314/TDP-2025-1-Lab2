@@ -18,6 +18,8 @@ int main(){
     g->setTerm(1);
     g->setTerm(2);
     g->setTerm(3);
+    g->printGraph();
+    cout << "Resolviendo el problema del árbol de Steiner con el método APV..." << endl;
     APV* a = new APV(g);
     a->print(a->solve());
 }

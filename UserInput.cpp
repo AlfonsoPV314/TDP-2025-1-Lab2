@@ -1,10 +1,24 @@
 #include "UserInput.h"
 
-// CLASS CURRENTLY BROKEN I HAVE TO FIX IT ACCORDING TO THE STRATEGY DESIGN PATTERN
-
-
+/*
+    * Constructor de la clase UserInput.
+    * Inicializa los atributos de la clase.
+    * - exit: Bandera para salir del bucle de entrada.
+    * - nombreArchivo: Nombre del archivo a leer.
+    * - currentSection: Sección actual del archivo.
+    * - g: Puntero al grafo que se va a construir.
+    * - waiting: Contador para esperar cambio de sección.
+*/
 UserInput::UserInput() : exit(false), nombreArchivo(""), currentSection(""), g(nullptr), waiting(0) {}
 
+/*
+    * Método menu: Muestra el menú de opciones al usuario y maneja la interacción.
+    * Permite al usuario leer un archivo, visualizar el grafo, encontrar una aproximación de árbol mínimo de Steiner o salir del programa.
+    * Parámetros:
+    * - Ninguno.
+    * Retorno:
+    * - void
+*/
 void UserInput::menu(){
     while(!exit){
         cout << endl << "============= MENU =============" << endl;
@@ -38,7 +52,7 @@ void UserInput::menu(){
 
             case 2:
                 if (g != nullptr) {
-                    cout << "Grafo: " << endl;
+                    cout << "Mostrando grafo: " << endl;
                     g->printGraph();
                 } else {
                     cout << "No hay grafo para mostrar." << endl;
@@ -61,6 +75,14 @@ void UserInput::menu(){
     }
 }
 
+/*
+    * Método readFile: Lee un archivo de entrada y procesa su contenido.
+    * Este método construye un grafo a partir del archivo en formato DIMACS.
+    * Parámetros:
+    * - Ninguno.
+    * Retorno:
+    * - void
+*/
 void UserInput::readFile() {
     ifstream file(this->nombreArchivo);
     if (!file.is_open()) {
@@ -104,12 +126,22 @@ void UserInput::readFile() {
     file.close();
 }
 
+/*
+    * Método processWord: Procesa una palabra leída del archivo y actualiza el grafo o la sección actual.
+    * Este método maneja las palabras clave del archivo y actualiza el grafo en consecuencia.
+    * Parámetros:
+    * - word: La palabra a procesar.
+    * - i: El índice de la línea actual (en la sección).
+    * - j: El índice de la palabra actual en la línea.
+    * Retorno:
+    * - void
+*/
 void UserInput::processWord(string word, int i, int j) {
-    cout << "[UserInput::processWord] Procesando palabra: " << word << " con i: " << i << " y j: " << j << endl;
+    //cout << "[UserInput::processWord] Procesando palabra: " << word << " con i: " << i << " y j: " << j << endl;
     if(!(currentSection == "graph" || currentSection == "terminals" || currentSection == "waiting" || i >= 0 || j >= 0)) return;
     if (currentSection == "waiting") {
         currentSection = word;
-        cout << "[UserInput::processWord] Seccion ahora es: [" << currentSection << "]" << endl;
+        //cout << "[UserInput::processWord] Seccion ahora es: [" << currentSection << "]" << endl;
         waiting = 0;
     } 
     else if (currentSection == "graph") {
@@ -123,12 +155,12 @@ void UserInput::processWord(string word, int i, int j) {
                 }
                 else if (waiting == 1) {
                     int nodes = stoi(word);
-                    cout << "[UserInput::processWord] Creando grafo con " << nodes << " nodos." << endl;
+                    //cout << "[UserInput::processWord] Creando grafo con " << nodes << " nodos." << endl;
                     g = new Graph(nodes);
                     waiting = 0;
                 }
                 else {
-                    cout << "[UserInput::processWord] Palabra no reconocida: " << word << endl;
+                    //cout << "[UserInput::processWord] Palabra no reconocida: " << word << endl;
                 }
                 break;
 
@@ -155,12 +187,12 @@ void UserInput::processWord(string word, int i, int j) {
 
                 case 3:
                     g->addEdge(u, v, stod(word));
-                    cout << "[UserInput::processWord] Arista [" << u << ", " << v << "] con peso " << word << " agregada." << endl;
+                    //cout << "[UserInput::processWord] Arista [" << u << ", " << v << "] con peso " << word << " agregada." << endl;
                     j = 0;
                     break;
                         
                 default:
-                    cout << "[UserInput::processWord] Input no reconocido: j = " << j << endl;
+                    //cout << "[UserInput::processWord] Input no reconocido: j = " << j << endl;
                     break;
                 }
         
@@ -172,14 +204,22 @@ void UserInput::processWord(string word, int i, int j) {
         }
         if(i > 1){
             g->setTerm(stoi(word) - 1);
-            cout << "[UserInput::processWord] Terminal " << word << " agregado." << endl;
+            //cout << "[UserInput::processWord] Terminal " << word << " agregado." << endl;
         }
     }
     else {
-        cout << "[UserInput::processWord] Palabra no reconocida o no relevante: " << word << endl;
+        //cout << "[UserInput::processWord] Palabra no reconocida o no relevante: " << word << endl;
     }
 }
 
+/*
+    * Método elegirMetodo: Permite al usuario seleccionar un método de aproximación para resolver el problema del árbol de Steiner.
+    * Este método ejecuta el algoritmo seleccionado y muestra el resultado.
+    * Parámetros:
+    * - Ninguno.
+    * Retorno:
+    * - void
+*/
 void UserInput::elegirMetodo() {
     if (g == nullptr) {
         cout << "No hay grafo para procesar." << endl;

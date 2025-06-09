@@ -65,9 +65,5 @@ int main() {
     pair<vector<pair<pair<int, int>, double>>, double> MST = g.MSTPrim(0);
     g.printMST(MST);
 
-    // cout << endl << "Encontrando aproximacion al problema del arbol de Steiner a traves del metodo de Takahashi-Matsuyama para el grafo 1..." << endl;
-    // vector<pair<int, int>> STM = g.solveTM();
-    // g.printTM(STM);
-
     return 0;
 }

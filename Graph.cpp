@@ -1,7 +1,25 @@
 #include "Graph.h"
 
+/*
+    * Constructor de la clase Graph.
+    * Inicializa el grafo vacío con un numero de nodos n.
+    * Parametros: 
+    * - n: Numero de nodos del grafo.
+    * Retorno: 
+    * - void
+*/
 Graph::Graph(int n) : V(n), INF(numeric_limits<double>::infinity()), M(n), E(0), Tn(0), T(n, false) {}
 
+/*
+    * Constructor de la clase Graph.
+    * Inicializa el grafo con un vector de nodos y un vector de aristas.
+    * Parametros: 
+    * - Vt: Vector de nodos conectados en el grafo.
+    * - Et: Vector de aristas, cada arista es un par (u, v) con su peso asociado.
+    * - T: Vector que indica si un nodo es terminal (true) o no (false).
+    * Retorno: 
+    * - void
+*/
 Graph::Graph(const vector<int> Vt, const vector<pair<pair<int, int>, double>>& Et, vector<bool> T) : V(T.size()), INF(numeric_limits<double>::infinity()), M(V), E(0), Tn(0), T(V, false) {
     for (int i = 0; i < V; i++) {
         this->T[i] = T[i];
@@ -12,9 +30,19 @@ Graph::Graph(const vector<int> Vt, const vector<pair<pair<int, int>, double>>& E
     for (const auto& edge : Et) {
         addEdge(edge.first.first, edge.first.second, edge.second);
     }
-    cout << "[Graph::Graph] Creando grafo con " << Vt.size() << " nodos y " << Et.size() << " aristas." << endl;
+    //cout << "[Graph::Graph] Creando grafo con " << Vt.size() << " nodos y " << Et.size() << " aristas." << endl;
 }
 
+/*
+    * Constructor de la clase Graph.
+    * Inicializa el grafo con un numero de nodos, un vector de aristas y un vector de nodos terminales.
+    * Parametros: 
+    * - V: Numero de nodos del grafo.
+    * - Et: Vector de aristas, cada arista es un par (u, v) con su peso asociado.
+    * - T: Vector que indica si un nodo es terminal (true) o no (false).
+    * Retorno: 
+    * - void
+*/
 Graph::Graph(const int V, const vector<pair<pair<int, int>, double>>& Et, vector<bool> T) : V(V), INF(numeric_limits<double>::infinity()), M(V), E(0), Tn(0), T(T) {
     for (int i = 0; i < V; i++) {
         if(T[i]) {
@@ -24,46 +52,85 @@ Graph::Graph(const int V, const vector<pair<pair<int, int>, double>>& Et, vector
     for (const auto& edge : Et) {
         addEdge(edge.first.first, edge.first.second, edge.second);
     }
-    cout << "[Graph::Graph] Creando grafo con " << V << " nodos y " << Et.size() << " aristas." << endl;
+    //cout << "[Graph::Graph] Creando grafo con " << V << " nodos y " << Et.size() << " aristas." << endl;
 }
 
+/*
+    * Metodo getV: Obtiene el numero de nodos del grafo.
+    * Retorno: 
+    * - int: Numero de nodos del grafo.
+*/
 int Graph::getV() const {
     return V;
 }
 
+/*
+    * Metodo getE: Obtiene el numero de aristas del grafo.
+    * Retorno: 
+    * - int: Numero de aristas del grafo.
+*/
 int Graph::getE() const {
     return E;
 }
 
+/*
+    * Metodo getTn: Obtiene el numero de nodos terminales del grafo.
+    * Retorno: 
+    * - int: Numero de nodos terminales del grafo.
+*/
 int Graph::getTn() const {
     return Tn;
 }
 
+/*
+    * Metodo getT: Obtiene el vector de nodos terminales del grafo.
+    * Retorno: 
+    * - vector<bool>: Vector que indica si un nodo es terminal (true) o no (false).
+*/
 vector<bool> Graph::getT() const {
     return T;
 }
 
+/*
+    * Metodo getM: Obtiene la lista de adyacencia del grafo.
+    * Retorno: 
+    * - vector<unordered_map<int, double>>: Lista de adyacencia del grafo, donde cada nodo tiene un mapa de nodos adyacentes y sus pesos.
+*/
 vector<unordered_map<int, double>> Graph::getM() const {
     return M;
 }
 
+/*
+    * Metodo getINF: Obtiene el valor de infinito utilizado en el grafo.
+    * Retorno: 
+    * - double: Valor de infinito utilizado en el grafo.
+*/
 double Graph::getINF() const {
     return INF;
 }
 
+/*
+    * Metodo addEdge: Agrega una arista al grafo.
+    * Parametros: 
+    * - u: Primer nodo de la arista.
+    * - v: Segundo nodo de la arista.
+    * - w: Peso de la arista.
+    * Retorno: 
+    * - void
+*/
 void Graph::addEdge(int u, int v, double w) {
 
     // Verificar si los vertices y el peso son validos
     if (u < 0 || u >= V || v < 0 || v >= V || w < 0) { 
-        if(u < 0 || u >= V) {
-            cout << "[Graph::addEdge] Error: Primer vertice " << u << " fuera de rango (V es: " << getV() << ")" << endl;
-        }
-        else if(v < 0 || v >= V) {
-            cout << "[Graph::addEdge] Error: Segundo vertice " << v << " fuera de rango (V es: " << getV() << ")" << endl;
-        }
-        else{
-            cout << "[Graph::addEdge] Error: Peso " << w << " fuera de rango (debe ser positivo)" << endl;
-        }
+        // if(u < 0 || u >= V) {
+        //     cout << "[Graph::addEdge] Error: Primer vertice " << u << " fuera de rango (V es: " << getV() << ")" << endl;
+        // }
+        // else if(v < 0 || v >= V) {
+        //     cout << "[Graph::addEdge] Error: Segundo vertice " << v << " fuera de rango (V es: " << getV() << ")" << endl;
+        // }
+        // else{
+        //     cout << "[Graph::addEdge] Error: Peso " << w << " fuera de rango (debe ser positivo)" << endl;
+        // }
         return;
     }
     M[u][v] = w;
@@ -76,10 +143,10 @@ double Graph::getEdge(int u, int v) const {
     // Verificar si los vertices son validos
     if (u < 0 || u >= V || v < 0 || v >= V) {
         if(u < 0 || u >= V) {
-            cout << "[Graph::getEdge] Error: Primer vertice " << u << " fuera de rango (V es: " << getV() << ")" << endl;
+            //cout << "[Graph::getEdge] Error: Primer vertice " << u << " fuera de rango (V es: " << getV() << ")" << endl;
         }
         else {
-            cout << "[Graph::getEdge] Error: Segundo vertice " << v << " fuera de rango (V es: " << getV() << ")" << endl;
+            //cout << "[Graph::getEdge] Error: Segundo vertice " << v << " fuera de rango (V es: " << getV() << ")" << endl;
         }
         return INF;
     }
@@ -87,15 +154,23 @@ double Graph::getEdge(int u, int v) const {
     return (it != M[u].end()) ? it->second : INF;   // Si no existe la arista, devolver INF. Si existe, devolver el peso
 }
 
+/*
+    * Metodo removeEdge: Elimina una arista del grafo.
+    * Parametros: 
+    * - u: Primer nodo de la arista.
+    * - v: Segundo nodo de la arista.
+    * Retorno: 
+    * - void
+*/
 void Graph::removeEdge(int u, int v) {
 
     // Verificar si los vertices son validos
     if (u < 0 || u >= V || v < 0 || v >= V) {
         if(u < 0 || u >= V) {
-            cout << "[Graph::removeEdge] Error: Primer vertice " << u << " fuera de rango (V es: " << getV() << ")" << endl;
+            //cout << "[Graph::removeEdge] Error: Primer vertice " << u << " fuera de rango (V es: " << getV() << ")" << endl;
         }
         else {
-            cout << "[Graph::removeEdge] Error: Segundo vertice " << v << " fuera de rango (V es: " << getV() << ")" << endl;
+            //cout << "[Graph::removeEdge] Error: Segundo vertice " << v << " fuera de rango (V es: " << getV() << ")" << endl;
         }
         return;
     }
@@ -104,15 +179,27 @@ void Graph::removeEdge(int u, int v) {
     E--;
 }
 
+/*
+    * Metodo setTerm: Establece un nodo como terminal.
+    * Parametros: 
+    * - t: Nodo a establecer como terminal.
+    * Retorno: 
+    * - void
+*/
 void Graph::setTerm(int t) {
     if (t < 0 || t >= V) {
-        cout << "[Graph::addTerm] Error: Vertice " << t << " fuera de rango (V es: " << getV() << ")" << endl;
+        //cout << "[Graph::addTerm] Error: Vertice " << t << " fuera de rango (V es: " << getV() << ")" << endl;
         return;
     }
     T[t] = true;
     Tn++;
 }
 
+/*
+    * Metodo cloneGraph: Clona el grafo actual.
+    * Retorno: 
+    * - Graph*: Puntero al nuevo grafo clonado.
+*/
 Graph* Graph::cloneGraph() const {
     Graph* clone = new Graph(V);
     clone->M = M;
@@ -123,6 +210,14 @@ Graph* Graph::cloneGraph() const {
     return clone;
 }
 
+/*
+    * Metodo dijkstra: Implementa el algoritmo de Dijkstra para encontrar el camino más corto entre dos nodos.
+    * Parametros: 
+    * - u: Nodo de inicio.
+    * - v: Nodo de destino.
+    * Retorno: 
+    * - pair<vector<pair<pair<int, int>, double>>, double>: Un par que contiene un vector de pares (arista, peso) y el peso total del camino.
+*/
 pair<vector<pair<pair<int, int>, double>>, double> Graph::dijkstra(int u, int v) const {
     vector<pair<pair<int, int>, double>> path;
     vector<double> dist(V, INF);
@@ -149,21 +244,27 @@ pair<vector<pair<pair<int, int>, double>>, double> Graph::dijkstra(int u, int v)
     }
 
     for (int at = v; at != -1; at = prev[at]) {
-        cout << "[Graph::dijkstra] Visitando nodo: " << at << " con distancia: " << dist[at] << " y previo: " << prev[at] << endl;
+        //cout << "[Graph::dijkstra] Visitando nodo: " << at << " con distancia: " << dist[at] << " y previo: " << prev[at] << endl;
         if (prev[at] != -1) {
             path.push_back({{at, prev[at]}, getEdge(at, prev[at])});
             totalWeight += getEdge(at, prev[at]);
-            cout << "[Graph::dijkstra] Agregando arista (" << at << ", " << prev[at] << ") con peso " << getEdge(at, prev[at]) << endl;
+            //cout << "[Graph::dijkstra] Agregando arista (" << at << ", " << prev[at] << ") con peso " << getEdge(at, prev[at]) << endl;
         }
     }
-    cout << "[Graph::dijkstra] Inputs: u es " << u << " y v es " << v << endl;
+    //cout << "[Graph::dijkstra] Inputs: u es " << u << " y v es " << v << endl;
     reverse(path.begin(), path.end());
     return {path, totalWeight};
 }
 
-// Función para imprimir el camino obtenido por Dijkstra
+/*
+    * Metodo printDijkstra: Imprime el camino obtenido por Dijkstra.
+    * Parametros:
+    * - path: Vector de pares (arista, peso) que representa el camino más corto.
+    * Retorno:
+    * - void
+*/
 void Graph::printDijkstra(const vector<pair<pair<int, int>, double>>& path) {
-    cout << "[Graph::printDijkstra] Camino más corto:" << endl;
+    cout << "Camino más corto de Dijkstra:" << endl;
     for (const auto& [edge, weight] : path) {
         int node = edge.first;
         int prev = edge.second;
@@ -174,9 +275,16 @@ void Graph::printDijkstra(const vector<pair<pair<int, int>, double>>& path) {
     cout << endl;
 }
 
+/*
+    * Metodo MSTPrim: Implementa el algoritmo de Prim para encontrar el árbol de expansión mínima (MST) a partir de un nodo origen.
+    * Parametros: 
+    * - origin: Nodo de inicio para el algoritmo de Prim.
+    * Retorno: 
+    * - pair<vector<pair<pair<int, int>, double>>, double>: Un par que contiene un vector de pares (arista, peso) y el peso total del MST.
+*/
 pair<vector<pair<pair<int, int>, double>>, double> Graph::MSTPrim(int origin) const {
     if (origin < 0 || origin >= V) {
-        cout << "[Graph::MSTPrim] Error: El nodo de origen " << origin << " está fuera de rango (V es: " << getV() << ")" << endl;
+        //cout << "[Graph::MSTPrim] Error: El nodo de origen " << origin << " está fuera de rango (V es: " << getV() << ")" << endl;
         return {{}, -1};
     }
 
@@ -215,49 +323,36 @@ pair<vector<pair<pair<int, int>, double>>, double> Graph::MSTPrim(int origin) co
     }
 
     // Verifica si hay nodos desconectados
-    for (int i = 0; i < V; ++i) {
-        if (!visited[i]) {
-            cout << "[Graph::MSTPrim] Advertencia: El nodo " << i << " no es alcanzable desde el origen." << endl;
-        }
-    }
+    // for (int i = 0; i < V; ++i) {
+    //     if (!visited[i]) {
+    //         cout << "[Graph::MSTPrim] Advertencia: El nodo " << i << " no es alcanzable desde el origen." << endl;
+    //     }
+    // }
 
     return {mstEdges, totalWeight};
 }
 
 
+/*
+    * Metodo printMST: Imprime el árbol de expansión mínima obtenido por Prim.
+    * Parametros: 
+    * - mstEdges: Un par que contiene un vector de pares (arista, peso) y el peso total del MST.
+    * Retorno: 
+    * - void
+*/
 void Graph::printMST(const pair<vector<pair<pair<int, int>, double>>, double>& mstEdges) const {
-    cout << "[Graph::printMST] Arbol de expansión mínima:" << endl;
+    cout << "Arbol de expansión mínima de Prim:" << endl;
     for (const auto& [uv, w] : mstEdges.first) {
         cout << "(" << uv.first + 1 << ", " << uv.second + 1 << ", " << w << ")" << endl;
     }
     cout << "Peso total del MST: " << mstEdges.second << endl << endl;
 }
 
-// bool Graph::isCyclic() const {
-//     vector<bool> visited(V, false);
-//     for (int i = 0; i < V; ++i) {
-//         if (!visited[i] && isCyclicUtil(i, visited, -1)) {
-//             return true;
-//         }
-//     }
-//     return false;
-// }
-
-// bool Graph::isCyclicUtil(int v, vector<bool>& visited, int parent) const {
-//     visited[v] = true;
-//     for (const auto& [neighbor, _] : M[v]) {
-//         if (!visited[neighbor]) {
-//             if (isCyclicUtil(neighbor, visited, v)) {
-//                 return true;
-//             }
-//         } else if (neighbor != parent) {
-//             return true;
-//         }
-//     }
-//     return false;
-// }
-
-
+/*
+    * Metodo getCyclic: Verifica si el grafo es cíclico y obtiene las aristas cíclicas.
+    * Retorno: 
+    * - pair<bool, vector<pair<int, int>>>: Un par que indica si hay ciclos (true/false) y un vector de pares (aristas: vertice, vertice) que representa las aristas cíclicas.
+*/
 pair<bool, vector<pair<int, int>>> Graph::getCyclic() const {
     vector<bool> visited(V, false);
     vector<pair<int, int>> cyclicEdges; // Almacena aristas cíclicas
@@ -300,6 +395,11 @@ pair<bool, vector<pair<int, int>>> Graph::getCyclic() const {
     return {!cyclicEdges.empty(), cyclicEdges};
 }
 
+/*
+    * Metodo getNonTermLeaves: Obtiene las hojas no terminales del grafo.
+    * Retorno: 
+    * - pair<bool, vector<pair<int, int>>>: Un par que indica si hay hojas no terminales (true/false) y un vector de pares (hoja, vecino) que representa las hojas no terminales.
+*/
 pair<bool, vector<pair<int, int>>> Graph::getNonTermLeaves() const {
     vector<pair<int, int>> nonTermLeaves;
     for (int i = 0; i < V; ++i) {
@@ -312,8 +412,13 @@ pair<bool, vector<pair<int, int>>> Graph::getNonTermLeaves() const {
     return {!nonTermLeaves.empty(), nonTermLeaves};
 }
 
+/*
+    * Metodo printGraph: Imprime el grafo.
+    * Retorno: 
+    * - void
+*/
 void Graph::printGraph() const {
-    cout << "[Graph::printGraph] Imprimiendo grafo (indices desde 1)..." << endl;
+    cout << "Imprimiendo grafo (indices desde 1)..." << endl;
     cout << "Numero de vertices: " << V << endl;
     cout << "Numero de aristas: " << E << endl;
     cout << "Con " << Tn << " vertices terminales: ";
@@ -334,6 +439,13 @@ void Graph::printGraph() const {
     cout << endl;
 }
 
+/*
+    * Operador de igualdad: Compara si dos grafos son iguales.
+    * Parametros: 
+    * - other: Otro grafo a comparar.
+    * Retorno: 
+    * - bool: true si los grafos son iguales, false en caso contrario.
+*/
 bool Graph::operator==(const Graph& other) const {
-    return (V == other.V && E == other.E && M == other.M);
+    return (V == other.V && E == other.E && M == other.M && T == other.T && Tn == other.Tn && INF == other.INF);
 }

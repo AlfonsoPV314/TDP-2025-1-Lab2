@@ -12,6 +12,8 @@ int main(){
     g->setTerm(0);
     g->setTerm(2);
     g->setTerm(5);
+    g->printGraph();
+    cout << "Resolviendo el problema del árbol de Steiner con el método Takahashi-Matsuyama..." << endl;
     Takahashi* t = new Takahashi(g);
     t->print(t->solve());
 }

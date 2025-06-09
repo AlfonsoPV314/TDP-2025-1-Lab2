@@ -1,7 +1,22 @@
 #include "APV.h"
 
+/*
+    * Constructor de la clase APV.
+    * Inicializa el grafo g y prepara el entorno para resolver el problema del árbol de Steiner.
+    * Parametros: Puntero al grafo sobre el cual se resolverá el problema del árbol de Steiner.
+    * - g: Puntero al objeto Graph que representa el grafo.
+    * Retorno: 
+    * - void
+*/
 APV::APV(Graph* g) : STP(g) {}
 
+/*
+    * Método solve: Resuelve el problema del árbol de Steiner utilizando el método APV.
+    * Parametros: 
+    * - Ninguno.
+    * Retorno: 
+    * - pair<vector<pair<int, int>>, double>: Un par que contiene un vector de pares de enteros (aristas del árbol de Steiner) y un double (peso total del árbol).
+*/
 pair<vector<pair<int, int>>, double> APV::solve() const {
     const int num_iterations = 5;  // Iteraciones de perturbación
     srand(static_cast<unsigned>(time(nullptr)));  // Semilla aleatoria
@@ -42,14 +57,14 @@ pair<vector<pair<int, int>>, double> APV::solve() const {
 
         // Perturbación solo en iteraciones > 0
         if (iter > 0) {
-            cout << "[APV::solve] Iteración " << iter << ": aplicando perturbaciones..." << endl;
+            //cout << "[APV::solve] Iteración " << iter << ": aplicando perturbaciones..." << endl;
             for (int u = 0; u < S; ++u) {
                 const auto& adjList = GPrima_pert->getM();
                 if (u < adjList.size()) {
                     for (const auto& [v, w] : adjList[u]) {
                         if (u < v) {
                             double perturb = ((double)rand() / RAND_MAX) * 1e-5;
-                            cout << "[APV::solve] Perturbando arista (" << u << ", " << v << ") con peso original " << w << " y perturbación " << perturb << endl;
+                            //cout << "[APV::solve] Perturbando arista (" << u << ", " << v << ") con peso original " << w << " y perturbación " << perturb << endl;
                             GPrima_pert->removeEdge(u, v);
                             GPrima_pert->addEdge(u, v, w + perturb);
                         }
@@ -71,8 +86,16 @@ pair<vector<pair<int, int>>, double> APV::solve() const {
     return {bestTree, bestCost};
 }
 
+/*
+    * Método buildSteinerTree: Construye el árbol de Steiner a partir del grafo perturbado y el mapa de caminos.
+    * Parametros: 
+    * - GPrima: Puntero al grafo perturbado.
+    * - pathMap: Mapa que contiene los caminos mínimos entre los nodos terminales.
+    * Retorno: 
+    * - pair<vector<pair<int, int>>, double>: Un par que contiene un vector de pares de enteros (aristas del árbol de Steiner) y un double (peso total del árbol).
+*/
 pair<vector<pair<int, int>>, double> APV::buildSteinerTree(Graph* GPrima, const vector<vector<vector<pair<pair<int, int>, double>>>>& pathMap) const {
-    cout << "[APV::buildSteinerTree] Construyendo árbol de Steiner (ejecutando pasos 2-6)..." << endl;
+    //cout << "[APV::buildSteinerTree] Construyendo árbol de Steiner (ejecutando pasos 2-6)..." << endl;
     int S = g->getT().size();
     vector<bool> T = g->getT();
 
@@ -86,13 +109,13 @@ pair<vector<pair<int, int>>, double> APV::buildSteinerTree(Graph* GPrima, const 
     }
 
     if(ini == -1) {
-        cout << "[APV::buildSteinerTree] Error: No se encontró nodo terminal inicial." << endl;
+        //cout << "[APV::buildSteinerTree] Error: No se encontró nodo terminal inicial." << endl;
         return { {}, -1 };
     }
 
     auto TPrima = GPrima->MSTPrim(ini);
     if (TPrima.first.empty() || TPrima.second == -1) {
-        cout << "[APV::buildSteinerTree] Error: No se encontró MST válido." << endl;
+        //cout << "[APV::buildSteinerTree] Error: No se encontró MST válido." << endl;
         return { {}, -1 };
     }
 
@@ -105,7 +128,7 @@ pair<vector<pair<int, int>>, double> APV::buildSteinerTree(Graph* GPrima, const 
         int v = edge.first.second;
         
         if(u >= static_cast<int>(pathMap.size()) || v >= static_cast<int>(pathMap.size())) {
-            cout << "[APV::buildSteinerTree] Error: Índice fuera de rango en pathMap." << endl;
+            //cout << "[APV::buildSteinerTree] Error: Índice fuera de rango en pathMap." << endl;
             continue;
         }
 
@@ -174,12 +197,20 @@ pair<vector<pair<int, int>>, double> APV::buildSteinerTree(Graph* GPrima, const 
     return {Te, totalWeight};
 }
 
+/*
+    * Método print: Imprime el árbol de Steiner aproximado.
+    * Este método muestra las aristas del árbol de Steiner y su peso total.
+    * Parametros: 
+    * - AproxST: Un par que contiene un vector de pares de enteros (aristas del árbol de Steiner) y un double (peso total del árbol).
+    * Retorno: 
+    * - void
+*/
 void APV::print(const pair<vector<pair<int, int>>, double>& AproxST) const {
     if (AproxST.second == -1) {
-        cout << "[APV::print] No hay árbol de Steiner para imprimir." << endl;
+        cout << "No hay árbol de Steiner para imprimir." << endl;
         return;
     }
-    cout << endl << "[APV::print] Imprimiendo árbol de Steiner..." << endl;
+    cout << endl << "Imprimiendo árbol de Steiner (método APV)..." << endl;
     const vector<pair<int, int>>& Te = AproxST.first;
     for (const auto& [u, v] : Te) {
         cout << "(" << u + 1 << ", " << v + 1 << ")" << endl;
