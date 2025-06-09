@@ -190,7 +190,7 @@ void UserInput::elegirMetodo() {
         cout << "Seleccione el metodo a utilizar:" << endl;
         cout << "1. Metodo de Takahashi-Matsuyama" << endl;
         cout << "2. Metodo de Kou-Markowsky-Berman" << endl;
-        cout << "3. Metodo [???]" << endl;
+        cout << "3. Metodo APV" << endl;
         cout << "4. Regresar al menu" << endl;
         int option;
         time_point<chrono::high_resolution_clock> start, stop;
@@ -207,17 +207,20 @@ void UserInput::elegirMetodo() {
         }
 
         pair<vector<pair<int, int>>, double> S;
-        Takahashi* TM = new Takahashi(g);
-        Kou* KMB = new Kou(g);
+        STP** sol;
+        sol = new STP*[3];
+        sol[0] = new Takahashi(g);
+        sol[1] = new Kou(g);
+        sol[2] = new APV(g);
         switch(option){
             case 1:
                 cout << "Ejecutando metodo de Takahashi-Matsuyama..." << endl;
                 start = high_resolution_clock::now();
-                S = TM->solve();
+                S = sol[0]->solve();
                 stop = high_resolution_clock::now();
                 duration = duration_cast<microseconds>(stop - start);
-                TM->print(S);
-                if(!TM->verifyValidity(S.first, S.second)) "Oops! El arbol de Steiner encontrado tiene algun error... :^(";
+                sol[0]->print(S);
+                if(!sol[0]->verifyValidity(S.first, S.second)) cout << "Oops! El arbol de Steiner encontrado tiene algun error... :^(" << endl;
                 cout << "Tiempo de ejecucion: " << duration.count() << " microsegundos." << endl;
                 end = true;
                 break;
@@ -225,24 +228,26 @@ void UserInput::elegirMetodo() {
             case 2:
                 cout << "Ejecutando metodo de Kou-Markowsky-Berman..." << endl;
                 start = high_resolution_clock::now();
-                S = KMB->solve();
+                S = sol[1]->solve();
                 stop = high_resolution_clock::now();
-                duration = duration_cast<minutes>(stop - start);
+                duration = duration_cast<microseconds>(stop - start);
+                sol[1]->print(S);
                 cout << "Tiempo de ejecucion: " << duration.count() << " microsegundos." << endl;
-                KMB->print(S);
-                if(!KMB->verifyValidity(S.first, S.second)) "Oops! El arbol de Steiner encontrado tiene algun error... :^(";
+                if(!sol[1]->verifyValidity(S.first, S.second)) "Oops! El arbol de Steiner encontrado tiene algun error... :^(";
                 end = true;
                 break;
 
             case 3:
-                cout << "Ejecutando metodo [???]..." << endl;
+                cout << "Ejecutando metodo APV..." << endl;
                 start = high_resolution_clock::now();
-                //vector<pair<int, int>> S = g->solve???();
+                S = sol[2]->solve();
                 stop = high_resolution_clock::now();
-                duration = duration_cast<minutes>(stop - start);
-                //g->print???(S);
+                duration = duration_cast<microseconds>(stop - start);
+                sol[2]->print(S);
                 cout << "Tiempo de ejecucion: " << duration.count() << " microsegundos." << endl;
+                if(!sol[2]->verifyValidity(S.first, S.second)) "Oops! El arbol de Steiner encontrado tiene algun error... :^(";
                 end = true;
+                break;
                 
             case 4:
                 end = true;

@@ -28,6 +28,8 @@ public:
 
     Graph(const vector<int> Vt, const vector<pair<pair<int, int>, double>>& Et, vector<bool> T);
 
+    Graph(const int V, const vector<pair<pair<int, int>, double>>& Et, vector<bool> T);
+
     // Obtener el numero de vertices
     int getV() const;
     

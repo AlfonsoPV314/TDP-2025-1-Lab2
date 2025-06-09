@@ -44,9 +44,6 @@ pair<vector<pair<int, int>>, double> Takahashi::solve() const {
                     shortestPath = currentPath.first;
                 }
             }
-            else{
-                continue;
-            }
         }
 
         // Verificar si se encontró un camino

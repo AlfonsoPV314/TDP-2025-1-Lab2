@@ -15,6 +15,18 @@ Graph::Graph(const vector<int> Vt, const vector<pair<pair<int, int>, double>>& E
     cout << "[Graph::Graph] Creando grafo con " << Vt.size() << " nodos y " << Et.size() << " aristas." << endl;
 }
 
+Graph::Graph(const int V, const vector<pair<pair<int, int>, double>>& Et, vector<bool> T) : V(V), INF(numeric_limits<double>::infinity()), M(V), E(0), Tn(0), T(T) {
+    for (int i = 0; i < V; i++) {
+        if(T[i]) {
+            Tn++;  // Contar el numero de nodos terminales
+        }
+    }
+    for (const auto& edge : Et) {
+        addEdge(edge.first.first, edge.first.second, edge.second);
+    }
+    cout << "[Graph::Graph] Creando grafo con " << V << " nodos y " << Et.size() << " aristas." << endl;
+}
+
 int Graph::getV() const {
     return V;
 }
@@ -107,6 +119,7 @@ Graph* Graph::cloneGraph() const {
     clone->E = E;
     clone->T = T;
     clone->INF = INF;
+    clone->Tn = Tn;
     return clone;
 }
 

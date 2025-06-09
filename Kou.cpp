@@ -42,6 +42,12 @@ pair<vector<pair<int, int>>, double> Kou::solve() const {
             break;   // Si el nodo no es terminal, no se incluye en el árbol de expansión mínima
         }
     }
+
+    if(ini == -1) {
+        cout << "[Kou::solve] Error: No se encontró un nodo terminal para iniciar el árbol de expansión mínima." << endl;
+        return { {}, -1 };
+    }
+
     pair<vector<pair<pair<int, int>, double>>, double> TPrima = GPrima->MSTPrim(ini);
 
     if (TPrima.first.empty()) {
