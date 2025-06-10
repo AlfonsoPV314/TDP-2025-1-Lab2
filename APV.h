@@ -32,7 +32,7 @@ public:
 private:
 
     // Método auxiliar para construir el árbol de Steiner a partir del grafo perturbado y el mapa de caminos.
-    pair<vector<pair<int, int>>, double> buildSteinerTree(Graph* GPrima, const vector<vector<vector<pair<pair<int, int>, double>>>>& pathMap) const;
+    pair<vector<pair<int, int>>, double> buildSteinerTree(Graph* GPrima, const vector<vector<vector<pair<pair<int, int>, double>>>>& pathMap, int startNode) const;
 };
 
 

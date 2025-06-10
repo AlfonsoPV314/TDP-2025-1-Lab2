@@ -230,7 +230,7 @@ void UserInput::elegirMetodo() {
         cout << "Seleccione el metodo a utilizar:" << endl;
         cout << "1. Metodo de Takahashi-Matsuyama" << endl;
         cout << "2. Metodo de Kou-Markowsky-Berman" << endl;
-        cout << "3. Metodo APV" << endl;
+        cout << "3. Metodo APV (elaboración propia)" << endl;
         cout << "4. Regresar al menu" << endl;
         int option;
         time_point<chrono::high_resolution_clock> start, stop;
