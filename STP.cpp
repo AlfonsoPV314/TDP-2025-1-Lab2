@@ -89,6 +89,16 @@ bool STP::verifyValidity(const vector<pair<int, int>>& Te, double totalWeight) c
             isValid = false;
         }
     }
+
+    // recorrer el conjunto de aristas y verificar si el peso total es correcto
+    double calculatedWeight = 0;
+    for (const auto& edge : Te) {
+        calculatedWeight += g->getEdge(edge.first, edge.second);
+    }
+
+    if (calculatedWeight != totalWeight) {
+        cout << "Warning: El peso total calculado (" << calculatedWeight << ") no coincide con el peso total proporcionado por la aproximacion (" << totalWeight << ")." << endl << "El peso real del arbol de Steiner es: " << calculatedWeight << endl;
+    }
     if(!isValid) {
         cout << "La aproximacion no es valida." << endl;
         return false;
